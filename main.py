@@ -16,11 +16,10 @@ __author__ = 'Ming Li'
 # params
 
 dir_path = 'input/'
-model_path = './models/'
-train, label = extract('//input//train.csv')
-input_shape = (train.shape[1] ** 0.5, train.shape[1] ** 0.5)
-print(input_shape)
-m = input_shape[0] * input_shape[1]  # num of flat array
+model_path = 'models/'
+train, label = extract('input/train.csv')
+input_shape = (np.int32(train.shape[1] ** 0.5), np.int32(train.shape[1] ** 0.5))
+m = train.shape[1]  # num of flat array
 n = len(set(label.columns))
 
 # load image into tensor
@@ -154,7 +153,7 @@ cross_val = False
 
 kf_iterator = model_selection.StratifiedKFold(n_splits=5, shuffle=True)  # Stratified
 count = 0
-for train_index, valid_index in kf_iterator.split(train, label):
+for train_index, valid_index in kf_iterator.split(train, label.columns):
 
     train_set = list()  # array of image and label in 1D array
     valid_set = list()  # array of image and label in 1D array
