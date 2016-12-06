@@ -18,10 +18,9 @@ __author__ = 'Ming Li'
 dir_path = 'input/'
 model_path = './models/'
 train, label = extract('input/train.csv')
-input_shape = (train.shape[1] ** 0.5, train.shape[1] ** 0.5)
-print(input_shape)
-m = input_shape[0] * input_shape[1]  # num of flat array
-n = len(set(pid_name.values()))
+m = train.shape[1]  # num of flat array
+n = len(set(label.columns))
+input_shape = (m ** 0.5, m ** 0.5)
 
 # load image into tensor
 
