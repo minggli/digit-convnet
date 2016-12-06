@@ -17,7 +17,7 @@ __author__ = 'Ming Li'
 
 dir_path = 'input/'
 model_path = './models/'
-train, label = extract(r'./input/train.csv')
+train, label = extract('//input//train.csv')
 input_shape = (train.shape[1] ** 0.5, train.shape[1] ** 0.5)
 print(input_shape)
 m = input_shape[0] * input_shape[1]  # num of flat array
@@ -150,11 +150,7 @@ def main(loop_num=0):
 
 # cross validation of training photos
 
-cross_val = True
-delete = True
-
-if delete:
-    delete_folders()
+cross_val = False
 
 kf_iterator = model_selection.StratifiedKFold(n_splits=5, shuffle=True)  # Stratified
 count = 0
