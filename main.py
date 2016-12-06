@@ -157,47 +157,27 @@ if delete:
     delete_folders()
 
 kf_iterator = model_selection.StratifiedKFold(n_splits=5, shuffle=True)  # Stratified
-train_x = list(pid_name.keys())  # leaf id
-train_y = list(pid_name.values())  # leaf species names
 count = 0
+for train_index, valid_index in kf_iterator.split(train, label):
 
-for train_index, valid_index in kf_iterator.split(train_x, train_y):
+    train_set = list()  # array of image and label in 1D array
+    valid_set = list()  # array of image and label in 1D array
 
-    leaf_images = dict()  # temp dictionary of re-sized leaf images
-    train = list()  # array of image and label in 1D array
-    valid = list()  # array of image and label in 1D array
+    for id in train.index:
 
-    train_id = [train_x[idx] for idx in train_index]
-    valid_id = [train_x[idx] for idx in valid_index]
+        if id in train_index:
+            train_set.append(np.array(train.ix[id]), np.array(label.ix[id]))
 
-    for filename in pic_names:
-
-        pid = int(filename.split('.')[0])
-        leaf_images[pid] = pic_resize(dir_path + filename, size=input_shape, pad=True)
-
-        if pid in train_id:
-            directory = dir_path + 'train/' + pid_name[pid]
-            train.append((np.array(leaf_images[pid]).flatten(), np.array(pid_label[pid])))
-
-        elif pid in valid_id:
-            directory = dir_path + 'validation/' + pid_name[pid]
-            valid.append((np.array(leaf_images[pid]).flatten(), np.array(pid_label[pid])))
-
-        else:
-            directory = dir_path + 'test'
-
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-
-        leaf_images[pid].save(directory + '/' + filename)
+        elif id in valid_index:
+            valid_set.append(np.array(train.ix[id]), np.array(label.ix[id]))
 
     # create batches
-    train = np.random.permutation(np.array(train))
-    batches = batch_iter(data=train, batch_size=300, num_epochs=20, shuffle=True)
+    train_set = np.random.permutation(np.array(train_set))
+    batches = batch_iter(data=train_set, batch_size=300, num_epochs=20, shuffle=True)
 
-    valid = np.array(valid)
-    valid_x = np.array([i[0] for i in valid])
-    valid_y = np.array([i[1] for i in valid])
+    valid_set = np.array(valid_set)
+    valid_x = np.array([i[0] for i in valid_set])
+    valid_y = np.array([i[1] for i in valid_set])
 
     main(loop_num=count)
     count += 1
