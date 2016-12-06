@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from sklearn import model_selection
-from utils import delete_folders, extract, pic_resize, batch_iter
+from utils import extract, batch_iter
 import warnings
 import os
 
