@@ -12,11 +12,11 @@ import re
 dir_path = 'input/'
 model_path = 'models/'
 test = pd.read_csv('input/test.csv')
+train, label, data = extract('input/train.csv')
 input_shape = (np.int32(test.shape[1] ** 0.5), np.int32(test.shape[1] ** 0.5))
 m = test.shape[1]  # num of flat array
 n = 10
 
-print(test)
 # load image into tensor
 
 sess = tf.Session()
@@ -100,4 +100,15 @@ loop_num = re.findall("[0-9]", model_names.pop())[0]
 new_saver = tf.train.import_meta_graph(model_path + "model_loop_{0}.ckpt.meta".format(loop_num))
 new_saver.restore(save_path=tf.train.latest_checkpoint(model_path), sess=sess)
 
+test = np.array(test)
+
+ans = sess.run(tf.nn.softmax(y_conv), feed_dict={x: test, keep_prob: 1})
+
+
+data = pd.DataFrame(data=ans, columns=label.columns, dtype=np.float32, index=test.index)
+data.index.rename('ImageID', inplace=True)
+
+
+
+data.to_csv('submission1.csv', encoding='utf-8', header=True, index=False)
 
