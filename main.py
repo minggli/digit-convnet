@@ -17,7 +17,7 @@ __author__ = 'Ming Li'
 
 dir_path = 'input/'
 model_path = 'models/'
-train, label = extract('input/train.csv')
+train, label, data = extract('input/train.csv')
 input_shape = (np.int32(train.shape[1] ** 0.5), np.int32(train.shape[1] ** 0.5))
 m = train.shape[1]  # num of flat array
 n = len(set(label.columns))
@@ -130,7 +130,7 @@ cross_val = False
 kf_iterator = model_selection.StratifiedKFold(n_splits=5, shuffle=True)  # Stratified
 count = 0
 
-for train_index, valid_index in kf_iterator.split(train, label.columns):
+for train_index, valid_index in kf_iterator.split(data.ix[:, 1:], data.ix[:, 0]):
 
     train_set = list()  # array of image and label in 1D array
     valid_set = list()  # array of image and label in 1D array

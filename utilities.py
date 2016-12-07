@@ -3,10 +3,10 @@ import numpy as np
 
 
 def extract(data):
-    train = pd.read_csv(data)
-    label = pd.get_dummies(train['label'])
-    train.drop(['label'], axis=1, inplace=True)
-    return train, label
+    data = pd.read_csv(data)
+    label = pd.get_dummies(data['label'])
+    train = data.drop(['label'], axis=1)
+    return train, label, data
 
 
 def batch_iter(data, batch_size, num_epochs, shuffle=False):
