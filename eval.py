@@ -12,11 +12,11 @@ import re
 dir_path = 'input/'
 model_path = 'models/'
 test = pd.read_csv('input/test.csv')
+test.index += 1
 train, label, data = extract('input/train.csv')
 input_shape = (np.int32(test.shape[1] ** 0.5), np.int32(test.shape[1] ** 0.5))
 m = test.shape[1]  # num of flat array
 n = 10
-
 
 # load image into tensor
 
@@ -105,7 +105,7 @@ new_saver.restore(save_path=tf.train.latest_checkpoint(model_path), sess=sess)
 ans = sess.run(tf.nn.softmax(y_conv), feed_dict={x: test, keep_prob: 1})
 
 data = pd.DataFrame(data=ans, columns=label.columns, dtype=np.float32, index=test.index)
-data.index.name = 'ImageID'
+data.index.name = 'ImageId'
 data['Label'] = data.idxmax(axis=1)
 out = data['Label']
 data.to_csv('prob.csv', encoding='utf-8', header=True, index=True)
