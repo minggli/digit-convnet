@@ -104,11 +104,10 @@ test = np.array(test)
 
 ans = sess.run(tf.nn.softmax(y_conv), feed_dict={x: test, keep_prob: 1})
 
-
 data = pd.DataFrame(data=ans, columns=label.columns, dtype=np.float32, index=test.index)
 data.index.rename('ImageID', inplace=True)
+data['Label'] = data.idxmax(axis=0)
+out = data['Label']
 
-
-
-data.to_csv('submission1.csv', encoding='utf-8', header=True, index=False)
+out.to_csv('submission.csv', encoding='utf-8', header=True, index=True)
 
