@@ -108,6 +108,6 @@ data = pd.DataFrame(data=ans, columns=label.columns, dtype=np.float32, index=tes
 data.index.rename('ImageID', inplace=True)
 data['Label'] = data.idxmax(axis=0)
 out = data['Label']
-
-out.to_csv('submission.csv', encoding='utf-8', header=True, index=True)
+data.to_csv('output.csv', encoding='utf-8', header=True, index_label=True)
+out.to_csv('submission.csv', encoding='utf-8', header=True, index_label=True)
 
