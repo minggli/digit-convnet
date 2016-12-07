@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from sklearn import model_selection
-from utils import extract, batch_iter
+from utilities import extract, batch_iter
 import warnings
 import os
 
@@ -73,36 +73,12 @@ b_conv2 = bias_variable([64])
 h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
 h_pool2 = max_pool_2x2(h_conv2)
 
-# Third layer
-
-W_conv3 = weight_variable([5, 5, 64, 64])
-b_conv3 = bias_variable([64])
-
-h_conv3 = tf.nn.relu(conv2d(h_pool2, W_conv3) + b_conv3)
-h_pool3 = max_pool_2x2(h_conv3)
-
-# Fourth layer
-
-W_conv4 = weight_variable([5, 5, 64, 128])
-b_conv4 = bias_variable([128])
-
-h_conv4 = tf.nn.relu(conv2d(h_pool3, W_conv4) + b_conv4)
-h_pool4 = max_pool_2x2(h_conv4)
-
-# Fifth layer
-
-W_conv5 = weight_variable([5, 5, 128, 128])
-b_conv5 = bias_variable([128])
-
-h_conv5 = tf.nn.relu(conv2d(h_pool4, W_conv5) + b_conv5)
-h_pool5 = max_pool_2x2(h_conv5)
-
 # Densely connected layer
-W_fc1 = weight_variable([3 * 3 * 128, 1024])
+W_fc1 = weight_variable([7 * 7 * 64, 1024])
 b_fc1 = bias_variable([1024])
 
-h_pool5_flat = tf.reshape(h_pool5, [-1, 3 * 3 * 128])
-h_fc1 = tf.nn.relu(tf.matmul(h_pool5_flat, W_fc1) + b_fc1)
+h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
+h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 
 # Dropout
 keep_prob = tf.placeholder(tf.float32)
@@ -169,7 +145,7 @@ for train_index, valid_index in kf_iterator.split(train, label.columns):
 
     # create batches
     train_set = np.random.permutation(np.array(train_set))
-    batches = batch_iter(data=train_set, batch_size=300, num_epochs=20, shuffle=True)
+    batches = batch_iter(data=train_set, batch_size=50, num_epochs=10000, shuffle=True)
 
     valid_set = np.array(valid_set)
     valid_x = np.array([i[0] for i in valid_set])
