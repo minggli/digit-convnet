@@ -106,6 +106,7 @@ saver = tf.train.Saver()
 def main(loop_num=0):
 
     print('\n\n\n\n starting cross validation... \n\n\n\n')
+    recent_100 = list()
 
     for batch in batches:
         e = batch[0]
@@ -116,6 +117,11 @@ def main(loop_num=0):
         if i % 5 == 0:
             train_accuracy = accuracy.eval(feed_dict={x: valid_x, y_: valid_y, keep_prob: 1.0}, session=sess)
             print("loop {3}, epoch {2}, step {0}, training accuracy {1:.4f}".format(i, train_accuracy, e, loop_num))
+        recent_100.append(train_accuracy)
+        if len(recent_100) > 100:
+            recent_100.pop(0)
+        if min(recent_100) == 1:
+            break
         train_step.run(feed_dict={x: x_batch, y_: y_batch, keep_prob: 0.5}, session=sess)
 
     if not os.path.exists(model_path):
