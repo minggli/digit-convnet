@@ -138,10 +138,10 @@ for train_index, valid_index in kf_iterator.split(data.ix[:, 1:], data.ix[:, 0])
     for id in train.index:
 
         if id in train_index:
-            train_set.append(np.array(train.ix[id]), np.array(label.ix[id]))
+            train_set.append((np.array(train.ix[id]), np.array(label.ix[id])))
 
         elif id in valid_index:
-            valid_set.append(np.array(train.ix[id]), np.array(label.ix[id]))
+            valid_set.append((np.array(train.ix[id]), np.array(label.ix[id])))
 
     # create batches
     train_set = np.random.permutation(np.array(train_set))
