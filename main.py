@@ -153,6 +153,7 @@ cross_val = False
 
 kf_iterator = model_selection.StratifiedKFold(n_splits=5, shuffle=True)  # Stratified
 count = 0
+
 for train_index, valid_index in kf_iterator.split(train, label.columns):
 
     train_set = list()  # array of image and label in 1D array
