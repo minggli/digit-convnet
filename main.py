@@ -133,7 +133,7 @@ def main(loop_num=0):
 
 cross_val = False
 
-kf_iterator = model_selection.StratifiedKFold(n_splits=5, shuffle=True)  # Stratified
+kf_iterator = model_selection.StratifiedKFold(n_splits=20, shuffle=True)  # Stratified
 count = 0
 
 for train_index, valid_index in kf_iterator.split(data.ix[:, 1:], data.ix[:, 0]):
@@ -151,7 +151,7 @@ for train_index, valid_index in kf_iterator.split(data.ix[:, 1:], data.ix[:, 0])
 
     # create batches
     train_set = np.random.permutation(np.array(train_set))
-    batches = batch_iter(data=train_set, batch_size=50, num_epochs=1, shuffle=True)
+    batches = batch_iter(data=train_set, batch_size=50, num_epochs=10000, shuffle=True)
 
     valid_set = np.array(valid_set)
     valid_x = np.array([i[0] for i in valid_set])
