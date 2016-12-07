@@ -105,9 +105,9 @@ new_saver.restore(save_path=tf.train.latest_checkpoint(model_path), sess=sess)
 ans = sess.run(tf.nn.softmax(y_conv), feed_dict={x: test, keep_prob: 1})
 
 data = pd.DataFrame(data=ans, columns=label.columns, dtype=np.float32, index=test.index)
-data.index.rename('ImageID', inplace=True)
+data.index.name = 'ImageID'
 data['Label'] = data.idxmax(axis=1)
 out = data['Label']
-# data.to_csv('output.csv', encoding='utf-8', header=True, index_label=True)
-out.to_csv('submission.csv', encoding='utf-8', header=True, index_label=True)
+data.to_csv('prob.csv', encoding='utf-8', header=True, index=True)
+out.to_csv('submission.csv', encoding='utf-8', header=True, index=True)
 
