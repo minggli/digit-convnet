@@ -114,7 +114,7 @@ def main(loop_num=0):
         x_batch, y_batch = zip(*batch[2])
         x_batch = np.array(x_batch)
         y_batch = np.array(y_batch)
-        if i % 20 == 0:
+        if i % 50 == 0:
             train_accuracy = accuracy.eval(feed_dict={x: valid_x, y_: valid_y, keep_prob: 1.0}, session=sess)
             print("loop {3}, epoch {2}, step {0}, training accuracy {1:.4f}".format(i, train_accuracy, e, loop_num))
             recent_100.append(train_accuracy)
@@ -151,7 +151,7 @@ for train_index, valid_index in kf_iterator.split(data.ix[:, 1:], data.ix[:, 0])
 
     # create batches
     train_set = np.random.permutation(np.array(train_set))
-    batches = batch_iter(data=train_set, batch_size=50, num_epochs=100, shuffle=True)
+    batches = batch_iter(data=train_set, batch_size=100, num_epochs=150, shuffle=True)
 
     valid_set = np.array(valid_set)
     valid_x = np.array([i[0] for i in valid_set])
