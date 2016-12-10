@@ -2,7 +2,6 @@ import tensorflow as tf
 import pandas as pd
 import numpy as np
 from utilities import extract, batch_iter
-import warnings
 import os
 import re
 
