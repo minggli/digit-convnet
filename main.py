@@ -151,7 +151,7 @@ for train_index, valid_index in kf_iterator.split(data.ix[:, 1:], data.ix[:, 0])
 
     # create batches
     train_set = np.random.permutation(np.array(train_set))
-    batches = batch_iter(data=train_set, batch_size=60, num_epochs=200, shuffle=True)
+    batches = batch_iter(data=train_set, batch_size=30, num_epochs=200, shuffle=True)
 
     valid_set = np.array(valid_set)
     valid_x = np.array([i[0] for i in valid_set])
