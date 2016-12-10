@@ -5,7 +5,6 @@ from utilities import extract, batch_iter
 import os
 import re
 
-
 # params
 
 dir_path = 'input/'
@@ -15,15 +14,6 @@ test.index += 1
 train, label, data = extract('input/train.csv')
 input_shape = (np.int32(test.shape[1] ** 0.5), np.int32(test.shape[1] ** 0.5))
 m = test.shape[1]  # num of flat array
-n = 10
-
-# params
-
-dir_path = 'input/'
-model_path = 'models/'
-train, label, data = extract('input/train.csv')
-input_shape = (np.int32(train.shape[1] ** 0.5), np.int32(train.shape[1] ** 0.5))
-m = train.shape[1]  # num of flat array
 n = len(set(label.columns))
 
 # load image into tensor
