@@ -91,7 +91,7 @@ b_fc2 = bias_variable([n])
 y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
 
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y_conv, y_))
-train_step = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=.9, beta2=.999).minimize(cross_entropy)
+train_step = tf.train.AdamOptimizer(learning_rate=1e-3, beta1=.9, beta2=.999).minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
@@ -151,7 +151,7 @@ for train_index, valid_index in kf_iterator.split(data.ix[:, 1:], data.ix[:, 0])
 
     # create batches
     train_set = np.random.permutation(np.array(train_set))
-    batches = batch_iter(data=train_set, batch_size=30, num_epochs=200, shuffle=True)
+    batches = batch_iter(data=train_set, batch_size=50, num_epochs=150, shuffle=True)
 
     valid_set = np.array(valid_set)
     valid_x = np.array([i[0] for i in valid_set])
