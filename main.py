@@ -15,6 +15,8 @@ __author__ = 'Ming Li'
 
 # params
 
+EVAL = True
+
 INPUT_PATH = 'input/'
 MODEL_PATH = 'models/'
 train, label, data = extract(INPUT_PATH + 'train.csv')
@@ -70,16 +72,18 @@ def _train(iterator, optimiser, metric, drop_out=.5):
 def _evaluate():
 
     import pandas as pd
+    import re
 
     test = pd.read_csv(INPUT_PATH + 'test.csv')
     test.index += 1
     test.index.name = 'ImageId'
 
-    # model_names = [i.name for i in os.scandir(MODEL_PATH) if i.is_file() and i.name.endswith('.meta')]
-    # loop_num = re.findall("[0-9]", model_names.pop())[0]
-    with sess.as_default():
-        new_saver = tf.train.import_meta_graph(MODEL_PATH)
-        new_saver.restore(save_path=tf.train.latest_checkpoint(MODEL_PATH))
+    model_names = [i.name for i in os.scandir(MODEL_PATH) if i.is_file() and i.name.endswith('.meta')]
+    loop_num = re.findall("[0-9]*", model_names.pop())[0]
+    loop_num = 499
+
+    new_saver = tf.train.import_meta_graph(MODEL_PATH + 'model_epoch_{0}.ckpt.meta'.format(loop_num))
+    new_saver.restore(save_path=tf.train.latest_checkpoint(MODEL_PATH), sess=sess)
 
     probs = sess.run(tf.nn.softmax(logits), feed_dict={x: test, keep_prob: 1.0})
 
@@ -154,31 +158,37 @@ if __name__ == '__main__':
     initializer = tf.global_variables_initializer()
     saver = tf.train.Saver()
 
-    kf_iterator = model_selection.StratifiedKFold(n_splits=21, shuffle=False)
+    if EVAL:
 
-    for train_index, valid_index in kf_iterator.split(data.ix[:, 1:], data.ix[:, 0]):
+        _evaluate()
 
-        train_set = list()  # array of image and label in 1D array
-        valid_set = list()  # array of image and label in 1D array
+    else:
 
-        for id in train.index:
+        kf_iterator = model_selection.StratifiedKFold(n_splits=21, shuffle=False)
 
-            if id in train_index:
-                train_set.append((np.array(train.ix[id]), np.array(label.ix[id])))
+        for train_index, valid_index in kf_iterator.split(data.ix[:, 1:], data.ix[:, 0]):
 
-            elif id in valid_index:
-                valid_set.append((np.array(train.ix[id]), np.array(label.ix[id])))
+            train_set = list()  # array of image and label in 1D array
+            valid_set = list()  # array of image and label in 1D array
 
-        valid_set = np.array(valid_set)
-        valid_x = np.array([i[0] for i in valid_set])
-        valid_y = np.array([i[1] for i in valid_set])
-        train_set = np.random.permutation(np.array(train_set))
+            for id in train.index:
 
-        batches = batch_iter(data=train_set, batch_size=50, num_epochs=500, shuffle=True)
+                if id in train_index:
+                    train_set.append((np.array(train.ix[id]), np.array(label.ix[id])))
 
-        with sess.as_default():
-            sess.run(initializer)
-            _train(iterator=batches, optimiser=train_step, metric=accuracy, drop_out=.5)
+                elif id in valid_index:
+                    valid_set.append((np.array(train.ix[id]), np.array(label.ix[id])))
 
-        break
+            valid_set = np.array(valid_set)
+            valid_x = np.array([i[0] for i in valid_set])
+            valid_y = np.array([i[1] for i in valid_set])
+            train_set = np.random.permutation(np.array(train_set))
+
+            batches = batch_iter(data=train_set, batch_size=50, num_epochs=500, shuffle=True)
+
+            with sess.as_default():
+                sess.run(initializer)
+                _train(iterator=batches, optimiser=train_step, metric=accuracy, drop_out=.5)
+
+            break
 
