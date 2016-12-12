@@ -123,17 +123,8 @@ def main(loop_num=0):
             train_accuracy = accuracy.eval(feed_dict={x: valid_x, y_: valid_y, keep_prob: 1.0}, session=sess)
             print("loop {3}, epoch {2}, step {0}, training accuracy {1:.4f}".format(i, train_accuracy, e, loop_num))
 
-        check = e > 0 and e % 1 == 0
-
-        if check:
-            save_path = saver.save(sess, model_path + "model_epoch_{0}.ckpt".format(e))
-            print("Model saved in file: {0}".format(save_path))
-            print('help')
-            continue
-
-    if not check:
-        save_path = saver.save(sess, model_path + "model_epoch_{0}.ckpt".format(e))
-        print("Model saved in file: {0}".format(save_path))
+    save_path = saver.save(sess, model_path + "model_epoch_{0}.ckpt".format(e))
+    print("Model saved in file: {0}".format(save_path))
 
 # cross validation of training photos
 
