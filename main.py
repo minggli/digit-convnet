@@ -53,7 +53,7 @@ def conv2d(x, W):
     return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
 
 
-def max_pool_2x2(x):
+def max_pool(x):
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
 
@@ -64,14 +64,14 @@ b_conv1 = bias_variable([64])
 x_image = tf.reshape(x, [-1, input_shape[0], input_shape[1], 1])
 
 h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
-h_pool1 = max_pool_2x2(h_conv1)
+h_pool1 = max_pool(h_conv1)
 
 # Second layer
 W_conv2 = weight_variable([3, 3, 64, 128])
 b_conv2 = bias_variable([128])
 
 h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
-h_pool2 = max_pool_2x2(h_conv2)
+h_pool2 = max_pool(h_conv2)
 
 # Densely connected layer
 W_fc1 = weight_variable([7 * 7 * 128, 1024])
