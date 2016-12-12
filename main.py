@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from sklearn import model_selection
-from .utilities import extract, batch_iter
+from utilities import extract, batch_iter
 import warnings
 import os
 
@@ -123,7 +123,7 @@ def main(loop_num=0):
             train_accuracy = accuracy.eval(feed_dict={x: valid_x, y_: valid_y, keep_prob: 1.0}, session=sess)
             print("loop {3}, epoch {2}, step {0}, training accuracy {1:.4f}".format(i, train_accuracy, e, loop_num))
 
-        check = e > 0 and e % 200 == 0
+        check = e > 0 and e % 1 == 0
 
         if check:
             save_path = saver.save(sess, model_path + "model_epoch_{0}.ckpt".format(e))
