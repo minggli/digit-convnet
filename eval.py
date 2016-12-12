@@ -1,7 +1,7 @@
 import tensorflow as tf
-import pandas as pd
 import numpy as np
 from utilities import extract, batch_iter
+from main import graph
 import os
 import re
 

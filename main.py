@@ -11,15 +11,15 @@ warnings.filterwarnings('ignore')
 
 __author__ = 'Ming Li'
 
-"""This application forms a submission from Ming Li in regards to digit convnet challenge on Kaggle community"""
+"""This app by Ming Li is for a competition on Kaggle community"""
 
 # params
 
 INPUT_PATH = 'input/'
 MODEL_PATH = 'models/'
-train, label, data = extract('input/train.csv')
+train, label, data = extract(INPUT_PATH + 'train.csv')
 input_shape = np.int32(np.sqrt((train.shape[1], train.shape[1])))
-m = train.shape[1]  # num of flat array
+m = train.shape[1]
 n = len(set(label.columns))
 
 # templates
@@ -65,6 +65,29 @@ def _train(iterator, optimiser, metric, drop_out=.5):
 
     save_path = saver.save(sess, MODEL_PATH + "model_epoch_{0}.ckpt".format(epoch))
     print("Model saved in file: {0}".format(save_path))
+
+
+def _evaluate():
+
+    import pandas as pd
+
+    test = pd.read_csv(INPUT_PATH + 'test.csv')
+    test.index += 1
+    test.index.name = 'ImageId'
+
+    # model_names = [i.name for i in os.scandir(MODEL_PATH) if i.is_file() and i.name.endswith('.meta')]
+    # loop_num = re.findall("[0-9]", model_names.pop())[0]
+    with sess.as_default():
+        new_saver = tf.train.import_meta_graph(MODEL_PATH)
+        new_saver.restore(save_path=tf.train.latest_checkpoint(MODEL_PATH))
+
+    probs = sess.run(tf.nn.softmax(logits), feed_dict={x: test, keep_prob: 1.0})
+
+    df = pd.DataFrame(data=probs, columns=label.columns, dtype=np.float32, index=test.index)
+    df['Label'] = df.idxmax(axis=1)
+    out = df['Label']
+    df.to_csv('prob.csv', encoding='utf-8', header=True, index=True)
+    out.to_csv('submission.csv', encoding='utf-8', header=True, index=True)
 
 
 if __name__ == '__main__':
