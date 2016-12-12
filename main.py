@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from sklearn import model_selection
-from utilities import extract, batch_iter
+from .utilities import extract, batch_iter
 import warnings
 import os
 
