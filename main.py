@@ -106,7 +106,9 @@ saver = tf.train.Saver()
 def main(loop_num=0):
 
     print('\n\n\n\n starting cross validation... \n\n\n\n')
-    recent_100 = list()
+
+    if not os.path.exists(model_path):
+        os.makedirs(model_path)
 
     for batch in batches:
         e = batch[0]
@@ -114,21 +116,22 @@ def main(loop_num=0):
         x_batch, y_batch = zip(*batch[2])
         x_batch = np.array(x_batch)
         y_batch = np.array(y_batch)
+
+        train_step.run(feed_dict={x: x_batch, y_: y_batch, keep_prob: 0.5}, session=sess)
+
         if i % 200 == 0:
             train_accuracy = accuracy.eval(feed_dict={x: valid_x, y_: valid_y, keep_prob: 1.0}, session=sess)
             print("loop {3}, epoch {2}, step {0}, training accuracy {1:.4f}".format(i, train_accuracy, e, loop_num))
-            recent_100.append(train_accuracy)
-        if len(recent_100) > 100:
-            recent_100.pop(0)
-        if min(recent_100) == 1:
-            break
-        train_step.run(feed_dict={x: x_batch, y_: y_batch, keep_prob: 0.5}, session=sess)
 
-        if not os.path.exists(model_path):
-            os.makedirs(model_path)
-        if e > 0 and e % 200 == 0:
-            save_path = saver.save(sess, model_path + "model_epochs_{0}.ckpt".format(e))
-    print("Model saved in file: {0}".format(save_path))
+        check = e > 0 and e % 200 == 0
+
+        if check:
+            save_path = saver.save(sess, model_path + "model_epoch_{0}.ckpt".format(e))
+            print("Model saved in file: {0}".format(save_path))
+
+    if not check:
+        save_path = saver.save(sess, model_path + "model_epoch_{0}.ckpt".format(e))
+        print("Model saved in file: {0}".format(save_path))
 
 # cross validation of training photos
 
