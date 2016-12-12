@@ -2,10 +2,8 @@ import tensorflow as tf
 import numpy as np
 from sklearn import model_selection
 from utilities import extract, batch_iter
-import warnings
+import sys
 import os
-
-warnings.filterwarnings('ignore')
 
 # coding: utf-8
 
@@ -14,9 +12,10 @@ __author__ = 'Ming Li'
 """This app by Ming Li is for a competition on Kaggle community"""
 
 # params
-
-EVAL = True
-
+try:
+    EVAL = False if str(sys.argv[1]).upper() != 'EVAL' else True
+except IndexError:
+    EVAL = False
 INPUT_PATH = 'input/'
 MODEL_PATH = 'models/'
 train, label, data = extract(INPUT_PATH + 'train.csv')
@@ -45,7 +44,7 @@ def max_pool(x):
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
 
-def _train(iterator, optimiser, metric, drop_out=.5):
+def _train(iterator, optimiser, metric, loss, drop_out=.5):
 
     print('\n\n\n\n starting cross validation... \n\n\n\n')
 
@@ -62,8 +61,8 @@ def _train(iterator, optimiser, metric, drop_out=.5):
         optimiser.run(feed_dict={x: x_batch, y_: y_batch, keep_prob: drop_out})
 
         if i % 200 == 0:
-            train_accuracy = metric.eval(feed_dict={x: valid_x, y_: valid_y, keep_prob: 1.0})
-            print("epoch {2}, step {0}, training accuracy {1:.4f}".format(i, train_accuracy, epoch))
+            train_accuracy, loss_score = sess.run([metric, loss], feed_dict={x: valid_x, y_: valid_y, keep_prob: 1.0})
+            print("epoch {2}, step {0}, training accuracy {1:.4f}, loss {3:.4f}".format(i, train_accuracy, epoch, loss_score))
 
     save_path = saver.save(sess, MODEL_PATH + "model_epoch_{0}.ckpt".format(epoch))
     print("Model saved in file: {0}".format(save_path))
@@ -79,7 +78,7 @@ def _evaluate():
     test.index.name = 'ImageId'
 
     model_names = [i.name for i in os.scandir(MODEL_PATH) if i.is_file() and i.name.endswith('.meta')]
-    loop_num = re.findall("[0-9]*", model_names.pop())[0]
+    loop_num = re.findall("[0-9][0-9]*", model_names.pop())[0]
     new_saver = tf.train.import_meta_graph(MODEL_PATH + 'model_epoch_{0}.ckpt.meta'.format(loop_num))
     new_saver.restore(save_path=tf.train.latest_checkpoint(MODEL_PATH), sess=sess)
 
@@ -186,7 +185,7 @@ if __name__ == '__main__':
 
             with sess.as_default():
                 sess.run(initializer)
-                _train(iterator=batches, optimiser=train_step, metric=accuracy, drop_out=.5)
+                _train(iterator=batches, optimiser=train_step, metric=accuracy, loss=loss, drop_out=.5)
 
             break
 
