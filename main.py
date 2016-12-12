@@ -128,6 +128,7 @@ def main(loop_num=0):
         if check:
             save_path = saver.save(sess, model_path + "model_epoch_{0}.ckpt".format(e))
             print("Model saved in file: {0}".format(save_path))
+            continue
 
     if not check:
         save_path = saver.save(sess, model_path + "model_epoch_{0}.ckpt".format(e))
