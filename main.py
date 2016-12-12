@@ -124,9 +124,10 @@ def main(loop_num=0):
             break
         train_step.run(feed_dict={x: x_batch, y_: y_batch, keep_prob: 0.5}, session=sess)
 
-    if not os.path.exists(model_path):
-        os.makedirs(model_path)
-    save_path = saver.save(sess, model_path + "model_loop_{0}.ckpt".format(loop_num))
+        if not os.path.exists(model_path):
+            os.makedirs(model_path)
+        if e > 0 and e % 200 == 0:
+            save_path = saver.save(sess, model_path + "model_epochs_{0}.ckpt".format(e))
     print("Model saved in file: {0}".format(save_path))
 
 # cross validation of training photos
