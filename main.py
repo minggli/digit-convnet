@@ -80,8 +80,6 @@ def _evaluate():
 
     model_names = [i.name for i in os.scandir(MODEL_PATH) if i.is_file() and i.name.endswith('.meta')]
     loop_num = re.findall("[0-9]*", model_names.pop())[0]
-    loop_num = 499
-
     new_saver = tf.train.import_meta_graph(MODEL_PATH + 'model_epoch_{0}.ckpt.meta'.format(loop_num))
     new_saver.restore(save_path=tf.train.latest_checkpoint(MODEL_PATH), sess=sess)
 

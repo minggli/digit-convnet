@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from utilities import extract, batch_iter
-from main import graph
+import pandas as pd
 import os
 import re
 
@@ -97,8 +97,9 @@ sess.run(init)
 
 saver = tf.train.Saver()
 model_names = [i.name for i in os.scandir(model_path) if i.is_file() and i.name.endswith('.meta')]
-loop_num = re.findall("[0-9]", model_names.pop())[0]
-new_saver = tf.train.import_meta_graph(model_path + "model_loop_{0}.ckpt.meta".format(loop_num))
+loop_num = re.findall("[0-9][0-9][0-9]", model_names.pop())[0]
+loop_num = 200
+new_saver = tf.train.import_meta_graph(model_path + "model_epoch_{0}.ckpt.meta".format(loop_num))
 new_saver.restore(save_path=tf.train.latest_checkpoint(model_path), sess=sess)
 
 
