@@ -12,6 +12,7 @@ __author__ = 'Ming Li'
 """This app by Ming Li is for a competition on Kaggle community"""
 
 # params
+
 try:
     EVAL = False if str(sys.argv[1]).upper() != 'EVAL' else True
 except IndexError:
