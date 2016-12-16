@@ -79,7 +79,7 @@ def evaluate(test, metric, valid_set):
 
     # model_names = [i.name for i in os.scandir(MODEL_PATH) if i.is_file() and i.name.endswith('.meta')]
     # loop_num = re.findall("[0-9][0-9]*", model_names.pop())[0]
-    new_saver = tf.train.import_meta_graph(MODEL_PATH + 'model_loop_{0}.ckpt.meta'.format(loop))
+    new_saver = tf.train.import_meta_graph(MODEL_PATH + 'model_ensemble_loop_{0}.ckpt.meta'.format(loop))
     new_saver.restore(save_path=tf.train.latest_checkpoint(MODEL_PATH), sess=sess)
 
     probability = sess.run(tf.nn.softmax(logits), feed_dict={x: test, keep_prob: 1.0})
@@ -206,7 +206,7 @@ if __name__ == '__main__':
             if not os.path.exists(MODEL_PATH):
                 os.makedirs(MODEL_PATH)
 
-            save_path = saver.save(sess, MODEL_PATH + "model_loop_{0}.ckpt".format(loop))
+            save_path = saver.save(sess, MODEL_PATH + "model_ensemble_loop_{0}.ckpt".format(loop))
             print("Model saved in file: {0}".format(save_path))
 
 # Ensemble predict
@@ -225,6 +225,4 @@ if __name__ == '__main__':
             prob, val_accuracy = evaluate(test=test, metric=accuracy, valid_set=valid_set)
             probs.append(prob)
             val_accuracies.append(val_accuracy)
-
-
 
