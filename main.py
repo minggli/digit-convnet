@@ -71,14 +71,9 @@ def _train(train_iterator, valid_set, optimiser, metric, loss, drop_out=.5):
             print("loop {4}, epoch {2}, step {0}, validation accuracy {1:.4f}, loss {3:.4f}".format(i, valid_accuracy, epoch, loss_score, loop))
 
 
-def evaluate(metric, valid_set):
+def evaluate(test, metric, valid_set):
 
     # import re
-    import pandas as pd
-
-    test = pd.read_csv(INPUT_PATH + 'test.csv')
-    test.index += 1
-    test.index.name = 'ImageId'
 
     valid_x, valid_y = zip(*valid_set)
 
@@ -192,12 +187,9 @@ if __name__ == '__main__':
 
     if EVAL:
 
-        _evaluate()
+        evaluate()
 
     else:
-
-        probs = []
-        val_accuracies = []
 
         for loop in range(ENSEMBLE):
 
@@ -217,8 +209,22 @@ if __name__ == '__main__':
             save_path = saver.save(sess, MODEL_PATH + "model_loop_{0}.ckpt".format(loop))
             print("Model saved in file: {0}".format(save_path))
 
-        for loop in range(ENSEMBLE):
-            prob = predict()
+# Ensemble predict
 
-            submit()
+        probs = []
+        val_accuracies = []
+
+        import pandas as pd
+
+        test = pd.read_csv(INPUT_PATH + 'test.csv')
+        test.index += 1
+        test.index.name = 'ImageId'
+
+        for loop in range(ENSEMBLE):
+
+            prob, val_accuracy = evaluate(test=test, metric=accuracy, valid_set=valid_set)
+            probs.append(prob)
+            val_accuracies.append(val_accuracy)
+
+
 
