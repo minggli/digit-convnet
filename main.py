@@ -71,7 +71,7 @@ def _train(train_iterator, valid_set, optimiser, metric, loss, drop_out=.5):
             print("loop {4}, epoch {2}, step {0}, validation accuracy {1:.4f}, loss {3:.4f}".format(i, valid_accuracy, epoch, loss_score, loop))
 
 
-def evaluate():
+def evaluate(metric, valid_set):
 
     # import re
     import pandas as pd
@@ -80,14 +80,17 @@ def evaluate():
     test.index += 1
     test.index.name = 'ImageId'
 
+    valid_x, valid_y = zip(*valid_set)
+
     # model_names = [i.name for i in os.scandir(MODEL_PATH) if i.is_file() and i.name.endswith('.meta')]
     # loop_num = re.findall("[0-9][0-9]*", model_names.pop())[0]
     new_saver = tf.train.import_meta_graph(MODEL_PATH + 'model_loop_{0}.ckpt.meta'.format(loop))
     new_saver.restore(save_path=tf.train.latest_checkpoint(MODEL_PATH), sess=sess)
 
     probability = sess.run(tf.nn.softmax(logits), feed_dict={x: test, keep_prob: 1.0})
+    valid_accuracy = sess.run(metric, feed_dict={x: valid_x, y_: valid_y, keep_prob: 1.0})
 
-    return probability
+    return probability, valid_accuracy
 
 
 def submit():
