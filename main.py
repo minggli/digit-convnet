@@ -17,6 +17,12 @@ try:
     EVAL = False if str(sys.argv[1]).upper() != 'EVAL' else True
 except IndexError:
     EVAL = False
+
+try:
+    ENSEMBLE = False if str(sys.argv[1]).upper() != 'ENSEMBLE' else True
+except IndexError:
+    ENSEMBLE = False
+
 INPUT_PATH = 'input/'
 MODEL_PATH = 'models/'
 train, label, data = extract(INPUT_PATH + 'train.csv')
@@ -67,6 +73,7 @@ def _train(iterator, optimiser, metric, loss, drop_out=.5):
 
     save_path = saver.save(sess, MODEL_PATH + "model_epoch_{0}.ckpt".format(epoch))
     print("Model saved in file: {0}".format(save_path))
+
 
 
 def _evaluate():
