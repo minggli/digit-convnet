@@ -3,6 +3,8 @@ import numpy as np
 from sklearn import model_selection
 from utilities import extract, batch_iter
 import sys
+import pandas as pd
+
 import os
 
 # coding: utf-8
@@ -88,14 +90,12 @@ def evaluate(test, metric, valid_set):
     return probability, valid_accuracy
 
 
-def submit():
+def submit(raw):
 
-    import pandas as pd
-
-    df = pd.DataFrame(data=probs, columns=label.columns, dtype=np.float32, index=test.index)
+    df = pd.DataFrame(data=raw, columns=label.columns, dtype=np.float32, index=test.index)
     df['Label'] = df.idxmax(axis=1)
     out = df['Label']
-    df.to_csv('prob.csv', encoding='utf-8', header=True, index=True)
+    df.to_csv('probs.csv', encoding='utf-8', header=True, index=True)
     out.to_csv('submission.csv', encoding='utf-8', header=True, index=True)
 
 
@@ -187,12 +187,32 @@ if __name__ == '__main__':
 
     if EVAL:
 
-        evaluate()
+        _, valid_set = \
+            generate_training_set(data=train, label=label, test_size=0.05)
+
+        probs = []
+        val_accuracies = []
+
+        test = pd.read_csv(INPUT_PATH + 'test.csv')
+        test.index += 1
+        test.index.name = 'ImageId'
+
+        for loop in range(ENSEMBLE):
+
+            prob, val_accuracy = evaluate(test=test, metric=accuracy, valid_set=valid_set)
+            probs.append(prob)
+            val_accuracies.append(val_accuracy)
+
+            print('Network: {0}, Validation Accuracy: {1:.4f}'.format(loop, val_accuracy))
+
+        ensemble_prob = np.mean(np.array([probs[i] for i in range(ENSEMBLE)]), axis=0)
+        submit(raw=ensemble_prob)
 
     else:
 
         for loop in range(ENSEMBLE):
 
+            # generate random train set and valid set for each ensemble
             train_set, valid_set = \
                 generate_training_set(data=train, label=label, test_size=0.05)
 
@@ -208,21 +228,4 @@ if __name__ == '__main__':
 
             save_path = saver.save(sess, MODEL_PATH + "model_ensemble_loop_{0}.ckpt".format(loop))
             print("Model saved in file: {0}".format(save_path))
-
-# Ensemble predict
-
-        probs = []
-        val_accuracies = []
-
-        import pandas as pd
-
-        test = pd.read_csv(INPUT_PATH + 'test.csv')
-        test.index += 1
-        test.index.name = 'ImageId'
-
-        for loop in range(ENSEMBLE):
-
-            prob, val_accuracy = evaluate(test=test, metric=accuracy, valid_set=valid_set)
-            probs.append(prob)
-            val_accuracies.append(val_accuracy)
 
