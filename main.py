@@ -23,15 +23,11 @@ input_shape = np.int32(np.sqrt((train.shape[1], train.shape[1])))
 m = train.shape[1]
 n = len(set(label.columns))
 
-try:
-    EVAL = False if str(sys.argv[1]).upper() != 'EVAL' else True
-except IndexError:
-    EVAL = False
+print(sys.argv[1:])
 
-try:
-    ENSEMBLE = 1 if str(sys.argv[1]).upper() != 'ENSEMBLE' else num_ensemble
-except IndexError:
-    ENSEMBLE = 1
+EVAL = True if 'EVAL' in map(str.upper, sys.argv[1:]) else False
+
+ENSEMBLE = num_ensemble if 'ENSEMBLE' in map(str.upper, sys.argv[1:]) else 1
 
 # templates
 
@@ -189,7 +185,7 @@ if __name__ == '__main__':
     if EVAL:
 
         _, valid_set = \
-            generate_training_set(data=train, label=label, test_size=0.05)
+            generate_training_set(data=train, label=label, test_size=0.95)
 
         probs = []
         val_accuracies = []
@@ -198,7 +194,7 @@ if __name__ == '__main__':
         test.index += 1
         test.index.name = 'ImageId'
 
-        for loop in range(num_ensemble):
+        for loop in range(ENSEMBLE):
 
             prob, val_accuracy = evaluate(test=test, metric=accuracy, valid_set=valid_set)
             probs.append(prob)
@@ -217,7 +213,7 @@ if __name__ == '__main__':
             train_set, valid_set = \
                 generate_training_set(data=train, label=label, test_size=0.05)
 
-            batches = batch_iter(data=train_set, batch_size=50, num_epochs=1, shuffle=True)
+            batches = batch_iter(data=train_set, batch_size=50, num_epochs=500, shuffle=True)
 
             with sess.as_default():
                 sess.run(initializer)
