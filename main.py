@@ -19,9 +19,9 @@ except IndexError:
     EVAL = False
 
 try:
-    ENSEMBLE = False if str(sys.argv[1]).upper() != 'ENSEMBLE' else True
+    ENSEMBLE = 1 if str(sys.argv[1]).upper() != 'ENSEMBLE' else 5
 except IndexError:
-    ENSEMBLE = False
+    ENSEMBLE = 1
 
 INPUT_PATH = 'input/'
 MODEL_PATH = 'models/'
@@ -51,12 +51,11 @@ def max_pool(x):
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
 
-def _train(train_iterator, valid_set, optimiser, metric, loss, drop_out=.5):
+def _train(loop, train_iterator, valid_set, optimiser, metric, loss, drop_out=.5):
 
-    print('\n\n\n\n starting optimising neural network #1... \n\n\n\n')
+    print('\n\n\n\n starting neural network #{}... \n\n\n\n'. format(loop))
 
-    if not os.path.exists(MODEL_PATH):
-        os.makedirs(MODEL_PATH)
+    valid_x, valid_y = zip(*valid_set)
 
     for batch in train_iterator:
         epoch = batch[0]
@@ -67,14 +66,9 @@ def _train(train_iterator, valid_set, optimiser, metric, loss, drop_out=.5):
 
         optimiser.run(feed_dict={x: x_batch, y_: y_batch, keep_prob: drop_out})
 
-        valid_x, valid_y = zip(*valid_set)
-
         if i % 200 == 0:
-            train_accuracy, loss_score = sess.run([metric, loss], feed_dict={x: valid_x, y_: valid_y, keep_prob: 1.0})
-            print("epoch {2}, step {0}, training accuracy {1:.4f}, loss {3:.4f}".format(i, train_accuracy, epoch, loss_score))
-
-    save_path = saver.save(sess, MODEL_PATH + "model_epoch_{0}.ckpt".format(epoch))
-    print("Model saved in file: {0}".format(save_path))
+            valid_accuracy, loss_score = sess.run([metric, loss], feed_dict={x: valid_x, y_: valid_y, keep_prob: 1.0})
+            print("loop {4}, epoch {2}, step {0}, validation accuracy {1:.4f}, loss {3:.4f}".format(i, valid_accuracy, epoch, loss_score, loop))
 
 
 def _evaluate():
@@ -192,13 +186,21 @@ if __name__ == '__main__':
 
     else:
 
-        train_set, valid_set = \
-            generate_training_set(data=train, label=label, test_size=0.05)
+        for loop in range(ENSEMBLE):
 
-        batches = batch_iter(data=train_set, batch_size=50, num_epochs=500, shuffle=True)
+            train_set, valid_set = \
+                generate_training_set(data=train, label=label, test_size=0.05)
 
-        with sess.as_default():
-            sess.run(initializer)
-            _train(train_iterator=batches, valid_set=valid_set, optimiser=train_step,
-                   metric=accuracy, loss=loss, drop_out=.5)
+            batches = batch_iter(data=train_set, batch_size=50, num_epochs=500, shuffle=True)
+
+            with sess.as_default():
+                sess.run(initializer)
+                _train(loop=loop, train_iterator=batches, valid_set=valid_set, optimiser=train_step,
+                       metric=accuracy, loss=loss, drop_out=.5)
+
+            if not os.path.exists(MODEL_PATH):
+                os.makedirs(MODEL_PATH)
+
+            save_path = saver.save(sess, MODEL_PATH + "model_loop_{0}.ckpt".format(loop))
+            print("Model saved in file: {0}".format(save_path))
 
