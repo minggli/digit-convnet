@@ -51,14 +51,14 @@ def max_pool(x):
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
 
-def _train(iterator, optimiser, metric, loss, drop_out=.5):
+def _train(train_iterator, valid_set, optimiser, metric, loss, drop_out=.5):
 
     print('\n\n\n\n starting optimising neural network #1... \n\n\n\n')
 
     if not os.path.exists(MODEL_PATH):
         os.makedirs(MODEL_PATH)
 
-    for batch in iterator:
+    for batch in train_iterator:
         epoch = batch[0]
         i = batch[1]
         x_batch, y_batch = zip(*batch[2])
@@ -98,9 +98,12 @@ def _evaluate():
     out.to_csv('submission.csv', encoding='utf-8', header=True, index=True)
 
 
-def generate_training_set(data, label, stratified=False):
+def generate_training_set(data, label, test_size=0.05, stratified=False):
+
+    from sklearn import model_selection
+
     x_train, x_valid, y_train, y_valid = \
-        model_selection.train_test_split(data, label, test_size=0.2, stratify=stratified)
+        model_selection.train_test_split(data, label, test_size=test_size, stratify=stratified)
     return x_train, x_valid, y_train, y_valid
 
 
@@ -174,31 +177,21 @@ if __name__ == '__main__':
 
     else:
 
-        kf_iterator = model_selection.StratifiedKFold(n_splits=21, shuffle=False)
+        x_train, x_valid, y_train, y_valid = \
+            generate_training_set(data=data, label=label, test_size=0.05, stratified=True)
 
-        for train_index, valid_index in kf_iterator.split(data.ix[:, 1:], data.ix[:, 0]):
+        train_set = zip(np.array(x_train), np.array(y_train))
+        valid_set = zip(np.array(x_valid), np.array(y_valid))
 
-            train_set = list()  # array of image and label in 1D array
-            valid_set = list()  # array of image and label in 1D array
+        valid_set = np.array(valid_set)
+        valid_x = np.array([i[0] for i in valid_set])
+        valid_y = np.array([i[1] for i in valid_set])
+        train_set = np.random.permutation(np.array(train_set))
 
-            for id in train.index:
+        batches = batch_iter(data=train_set, batch_size=50, num_epochs=500, shuffle=True)
 
-                if id in train_index:
-                    train_set.append((np.array(train.ix[id]), np.array(label.ix[id])))
+        with sess.as_default():
+            sess.run(initializer)
+            _train(train_iterator=batches, valid_set=valid_set, optimiser=train_step, metric=accuracy, loss=loss, drop_out=.5)
 
-                elif id in valid_index:
-                    valid_set.append((np.array(train.ix[id]), np.array(label.ix[id])))
-
-            valid_set = np.array(valid_set)
-            valid_x = np.array([i[0] for i in valid_set])
-            valid_y = np.array([i[1] for i in valid_set])
-            train_set = np.random.permutation(np.array(train_set))
-
-            batches = batch_iter(data=train_set, batch_size=50, num_epochs=500, shuffle=True)
-
-            with sess.as_default():
-                sess.run(initializer)
-                _train(iterator=batches, optimiser=train_step, metric=accuracy, loss=loss, drop_out=.5)
-
-            break
 
