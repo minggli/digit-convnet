@@ -53,7 +53,7 @@ def max_pool(x):
 
 def _train(iterator, optimiser, metric, loss, drop_out=.5):
 
-    print('\n\n\n\n starting cross validation... \n\n\n\n')
+    print('\n\n\n\n starting optimising neural network #1... \n\n\n\n')
 
     if not os.path.exists(MODEL_PATH):
         os.makedirs(MODEL_PATH)
@@ -73,7 +73,6 @@ def _train(iterator, optimiser, metric, loss, drop_out=.5):
 
     save_path = saver.save(sess, MODEL_PATH + "model_epoch_{0}.ckpt".format(epoch))
     print("Model saved in file: {0}".format(save_path))
-
 
 
 def _evaluate():
@@ -97,6 +96,12 @@ def _evaluate():
     out = df['Label']
     df.to_csv('prob.csv', encoding='utf-8', header=True, index=True)
     out.to_csv('submission.csv', encoding='utf-8', header=True, index=True)
+
+
+def generate_training_set(data, label, stratified=False):
+    x_train, x_valid, y_train, y_valid = \
+        model_selection.train_test_split(data, label, test_size=0.2, stratify=stratified)
+    return x_train, x_valid, y_train, y_valid
 
 
 if __name__ == '__main__':
