@@ -85,7 +85,8 @@ def predict():
     new_saver = tf.train.import_meta_graph(MODEL_PATH + 'model_loop_{0}.ckpt.meta'.format(loop))
     new_saver.restore(save_path=tf.train.latest_checkpoint(MODEL_PATH), sess=sess)
 
-    probs = sess.run(tf.nn.softmax(logits), feed_dict={x: test, keep_prob: 1.0})
+    probability = sess.run(tf.nn.softmax(logits), feed_dict={x: test, keep_prob: 1.0})
+    return probability
 
 
 def submit():
@@ -212,3 +213,6 @@ if __name__ == '__main__':
             save_path = saver.save(sess, MODEL_PATH + "model_loop_{0}.ckpt".format(loop))
             print("Model saved in file: {0}".format(save_path))
 
+        for loop in range(ENSEMBLE):
+            predict()
+            submit()
