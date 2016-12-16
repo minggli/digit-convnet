@@ -116,8 +116,8 @@ def generate_training_set(data, label, test_size=0.05):
     x_valid = data.ix[test_index, :]
     y_valid = label.ix[test_index, :]
 
-    combined_train = np.concatenate((x_train, y_train), axis=0)
-    combined_valid = np.concatenate((x_valid, y_valid), axis=0)
+    combined_train = zip(x_train, y_train)
+    combined_valid = zip(x_valid, y_valid)
 
     return combined_train, combined_valid
 
@@ -195,9 +195,12 @@ if __name__ == '__main__':
         train_set, valid_set = \
             generate_training_set(data=train, label=label, test_size=0.05)
 
+        print(zip(*train_set[0]))
+
         batches = batch_iter(data=train_set, batch_size=50, num_epochs=500, shuffle=True)
 
         with sess.as_default():
             sess.run(initializer)
-            _train(train_iterator=batches, valid_set=valid_set, optimiser=train_step, metric=accuracy, loss=loss, drop_out=.5)
+            _train(train_iterator=batches, valid_set=valid_set, optimiser=train_step,
+                   metric=accuracy, loss=loss, drop_out=.5)
 
