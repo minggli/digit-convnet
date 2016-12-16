@@ -71,7 +71,7 @@ def _train(train_iterator, valid_set, optimiser, metric, loss, drop_out=.5):
             print("loop {4}, epoch {2}, step {0}, validation accuracy {1:.4f}, loss {3:.4f}".format(i, valid_accuracy, epoch, loss_score, loop))
 
 
-def predict():
+def evaluate():
 
     # import re
     import pandas as pd
@@ -86,6 +86,7 @@ def predict():
     new_saver.restore(save_path=tf.train.latest_checkpoint(MODEL_PATH), sess=sess)
 
     probability = sess.run(tf.nn.softmax(logits), feed_dict={x: test, keep_prob: 1.0})
+
     return probability
 
 
@@ -214,5 +215,7 @@ if __name__ == '__main__':
             print("Model saved in file: {0}".format(save_path))
 
         for loop in range(ENSEMBLE):
-            predict()
+            prob = predict()
+
             submit()
+
