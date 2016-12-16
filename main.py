@@ -1,6 +1,5 @@
 import tensorflow as tf
 import numpy as np
-from sklearn import model_selection
 from utilities import extract, batch_iter
 import sys
 import pandas as pd
