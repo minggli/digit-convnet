@@ -185,7 +185,7 @@ if __name__ == '__main__':
     if EVAL:
 
         _, valid_set = \
-            generate_training_set(data=train, label=label, test_size=0.95)
+            generate_training_set(data=train, label=label, test_size=0.05)
 
         probs = []
         val_accuracies = []
