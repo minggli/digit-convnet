@@ -51,7 +51,7 @@ def max_pool(x):
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
 
-def _train(loop, train_iterator, valid_set, optimiser, metric, loss, drop_out=.5):
+def _train(train_iterator, valid_set, optimiser, metric, loss, drop_out=.5):
 
     print('\n\n\n\n starting neural network #{}... \n\n\n\n'. format(loop))
 
@@ -71,10 +71,10 @@ def _train(loop, train_iterator, valid_set, optimiser, metric, loss, drop_out=.5
             print("loop {4}, epoch {2}, step {0}, validation accuracy {1:.4f}, loss {3:.4f}".format(i, valid_accuracy, epoch, loss_score, loop))
 
 
-def _evaluate():
+def predict():
 
-    import pandas as pd
     import re
+    import pandas as pd
 
     test = pd.read_csv(INPUT_PATH + 'test.csv')
     test.index += 1
@@ -86,6 +86,11 @@ def _evaluate():
     new_saver.restore(save_path=tf.train.latest_checkpoint(MODEL_PATH), sess=sess)
 
     probs = sess.run(tf.nn.softmax(logits), feed_dict={x: test, keep_prob: 1.0})
+
+
+def submit():
+
+    import pandas as pd
 
     df = pd.DataFrame(data=probs, columns=label.columns, dtype=np.float32, index=test.index)
     df['Label'] = df.idxmax(axis=1)
@@ -195,7 +200,7 @@ if __name__ == '__main__':
 
             with sess.as_default():
                 sess.run(initializer)
-                _train(loop=loop, train_iterator=batches, valid_set=valid_set, optimiser=train_step,
+                _train(train_iterator=batches, valid_set=valid_set, optimiser=train_step,
                        metric=accuracy, loss=loss, drop_out=.5)
 
             if not os.path.exists(MODEL_PATH):
