@@ -81,9 +81,9 @@ def evaluate(test, metric, valid_set):
     new_saver.restore(save_path=MODEL_PATH + 'model_ensemble_loop_{0}.ckpt'.format(loop), sess=sess)
 
     probability = sess.run(tf.nn.softmax(logits), feed_dict={x: test, keep_prob: 1.0})
-    valid_accuracy = sess.run(metric, feed_dict={x: valid_x, y_: valid_y, keep_prob: 1.0})
+    valid_accuracy, valid_probability = sess.run([metric, tf.nn.softmax(logits)], feed_dict={x: valid_x, y_: valid_y, keep_prob: 1.0})
 
-    return probability, valid_accuracy
+    return probability, valid_accuracy, valid_probability
 
 
 def submit(raw):
@@ -186,8 +186,11 @@ if __name__ == '__main__':
         _, valid_set = \
             generate_training_set(data=train, label=label, test_size=0.05)
 
+        _, valid_y = zip(*valid_set)
+
         probs = []
         val_accuracies = []
+        val_probs = []
 
         test = pd.read_csv(INPUT_PATH + 'test.csv')
         test.index += 1
@@ -195,11 +198,17 @@ if __name__ == '__main__':
 
         for loop in range(ENSEMBLE):
 
-            prob, val_accuracy = evaluate(test=test, metric=accuracy, valid_set=valid_set)
+            prob, val_accuracy, val_prob = evaluate(test=test, metric=accuracy, valid_set=valid_set)
             probs.append(prob)
             val_accuracies.append(val_accuracy)
+            val_probs.append(val_prob)
 
             print('Network: {0}, Validation Accuracy: {1:.4f}'.format(loop, val_accuracy))
+
+        ensemble_val_prob = np.mean(np.array([val_probs[i] for i in range(ENSEMBLE)]), axis=0)
+        ensemble_val_accuracy = ensemble_val_prob.argmax(axis=1) == valid_y.argmax(axis=1)
+
+        print('Ensemble Network ({0}), Validation Accuracy: {1:.4f}'.format(loop+1, ensemble_val_accuracy))
 
         ensemble_prob = np.mean(np.array([probs[i] for i in range(ENSEMBLE)]), axis=0)
         submit(raw=ensemble_prob)
