@@ -67,6 +67,8 @@ def _train(train_iterator, valid_set, optimiser, metric, loss, drop_out=.5):
 
         optimiser.run(feed_dict={x: x_batch, y_: y_batch, keep_prob: drop_out})
 
+        valid_x, valid_y = zip(*valid_set)
+
         if i % 200 == 0:
             train_accuracy, loss_score = sess.run([metric, loss], feed_dict={x: valid_x, y_: valid_y, keep_prob: 1.0})
             print("epoch {2}, step {0}, training accuracy {1:.4f}, loss {3:.4f}".format(i, train_accuracy, epoch, loss_score))
@@ -98,13 +100,26 @@ def _evaluate():
     out.to_csv('submission.csv', encoding='utf-8', header=True, index=True)
 
 
-def generate_training_set(data, label, test_size=0.05, stratified=False):
+def generate_training_set(data, label, test_size=0.05):
 
-    from sklearn import model_selection
+    index = len(data)
+    random_index = np.random.permutation(index)
 
-    x_train, x_valid, y_train, y_valid = \
-        model_selection.train_test_split(data, label, test_size=test_size, stratify=stratified)
-    return x_train, x_valid, y_train, y_valid
+    train_size = int((1 - test_size) * index)
+
+    train_index = random_index[:train_size]
+    test_index = random_index[train_size:]
+
+    x_train = data.ix[train_index, :]
+    y_train = label.ix[train_index, :]
+
+    x_valid = data.ix[test_index, :]
+    y_valid = label.ix[test_index, :]
+
+    combined_train = np.concatenate((x_train, y_train), axis=0)
+    combined_valid = np.concatenate((x_valid, y_valid), axis=0)
+
+    return combined_train, combined_valid
 
 
 if __name__ == '__main__':
@@ -177,21 +192,12 @@ if __name__ == '__main__':
 
     else:
 
-        x_train, x_valid, y_train, y_valid = \
-            generate_training_set(data=data, label=label, test_size=0.05, stratified=True)
-
-        train_set = zip(np.array(x_train), np.array(y_train))
-        valid_set = zip(np.array(x_valid), np.array(y_valid))
-
-        valid_set = np.array(valid_set)
-        valid_x = np.array([i[0] for i in valid_set])
-        valid_y = np.array([i[1] for i in valid_set])
-        train_set = np.random.permutation(np.array(train_set))
+        train_set, valid_set = \
+            generate_training_set(data=train, label=label, test_size=0.05)
 
         batches = batch_iter(data=train_set, batch_size=50, num_epochs=500, shuffle=True)
 
         with sess.as_default():
             sess.run(initializer)
             _train(train_iterator=batches, valid_set=valid_set, optimiser=train_step, metric=accuracy, loss=loss, drop_out=.5)
-
 
