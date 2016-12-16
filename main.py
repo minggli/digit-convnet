@@ -191,6 +191,9 @@ if __name__ == '__main__':
 
     else:
 
+        probs = []
+        val_accuracies = []
+
         for loop in range(ENSEMBLE):
 
             train_set, valid_set = \
