@@ -15,22 +15,23 @@ __author__ = 'Ming Li'
 
 # params
 
+INPUT_PATH = 'input/'
+MODEL_PATH = 'models/'
+num_ensemble = 5
+train, label, data = extract(INPUT_PATH + 'train.csv')
+input_shape = np.int32(np.sqrt((train.shape[1], train.shape[1])))
+m = train.shape[1]
+n = len(set(label.columns))
+
 try:
     EVAL = False if str(sys.argv[1]).upper() != 'EVAL' else True
 except IndexError:
     EVAL = False
 
 try:
-    ENSEMBLE = 1 if str(sys.argv[1]).upper() != 'ENSEMBLE' else 5
+    ENSEMBLE = 1 if str(sys.argv[1]).upper() != 'ENSEMBLE' else num_ensemble
 except IndexError:
     ENSEMBLE = 1
-
-INPUT_PATH = 'input/'
-MODEL_PATH = 'models/'
-train, label, data = extract(INPUT_PATH + 'train.csv')
-input_shape = np.int32(np.sqrt((train.shape[1], train.shape[1])))
-m = train.shape[1]
-n = len(set(label.columns))
 
 # templates
 
@@ -216,7 +217,7 @@ if __name__ == '__main__':
             train_set, valid_set = \
                 generate_training_set(data=train, label=label, test_size=0.05)
 
-            batches = batch_iter(data=train_set, batch_size=50, num_epochs=500, shuffle=True)
+            batches = batch_iter(data=train_set, batch_size=50, num_epochs=1, shuffle=True)
 
             with sess.as_default():
                 sess.run(initializer)
