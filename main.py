@@ -110,14 +110,14 @@ def generate_training_set(data, label, test_size=0.05):
     train_index = random_index[:train_size]
     test_index = random_index[train_size:]
 
-    x_train = data.ix[train_index, :]
-    y_train = label.ix[train_index, :]
+    x_train = np.array(data.ix[train_index, :])
+    y_train = np.array(label.ix[train_index, :])
 
-    x_valid = data.ix[test_index, :]
-    y_valid = label.ix[test_index, :]
+    x_valid = np.array(data.ix[test_index, :])
+    y_valid = np.array(label.ix[test_index, :])
 
-    combined_train = zip(x_train, y_train)
-    combined_valid = zip(x_valid, y_valid)
+    combined_train = np.array([(x_train[i], y_train[i]) for i in range(len(train_index))])
+    combined_valid = np.array([(x_valid[i], y_valid[i]) for i in range(len(test_index))])
 
     return combined_train, combined_valid
 
@@ -194,8 +194,6 @@ if __name__ == '__main__':
 
         train_set, valid_set = \
             generate_training_set(data=train, label=label, test_size=0.05)
-
-        print(zip(*train_set[0]))
 
         batches = batch_iter(data=train_set, batch_size=50, num_epochs=500, shuffle=True)
 

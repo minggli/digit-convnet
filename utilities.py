@@ -12,7 +12,7 @@ def extract(data):
 def batch_iter(data, batch_size, num_epochs, shuffle=False):
     """batch iterator"""
     data_size = len(data)
-    num_batches_per_epoch = int(len(data)/batch_size) + 1
+    num_batches_per_epoch = int(data_size/batch_size) + 1
     for epoch in range(num_epochs):
         if shuffle:
             new_data = np.random.permutation(data)
