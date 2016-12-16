@@ -206,7 +206,7 @@ if __name__ == '__main__':
             print('Network: {0}, Validation Accuracy: {1:.4f}'.format(loop, val_accuracy))
 
         ensemble_val_prob = np.mean(np.array([val_probs[i] for i in range(ENSEMBLE)]), axis=0)
-        ensemble_val_accuracy = ensemble_val_prob.argmax(axis=1) == valid_y.argmax(axis=1)
+        ensemble_val_accuracy = sum(ensemble_val_prob.argmax(axis=1) == valid_y.argmax(axis=1))/len(valid_y)
 
         print('Ensemble Network ({0}), Validation Accuracy: {1:.4f}'.format(loop+1, ensemble_val_accuracy))
 
