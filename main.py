@@ -73,16 +73,16 @@ def _train(train_iterator, valid_set, optimiser, metric, loss, drop_out=.5):
 
 def predict():
 
-    import re
+    # import re
     import pandas as pd
 
     test = pd.read_csv(INPUT_PATH + 'test.csv')
     test.index += 1
     test.index.name = 'ImageId'
 
-    model_names = [i.name for i in os.scandir(MODEL_PATH) if i.is_file() and i.name.endswith('.meta')]
-    loop_num = re.findall("[0-9][0-9]*", model_names.pop())[0]
-    new_saver = tf.train.import_meta_graph(MODEL_PATH + 'model_epoch_{0}.ckpt.meta'.format(loop_num))
+    # model_names = [i.name for i in os.scandir(MODEL_PATH) if i.is_file() and i.name.endswith('.meta')]
+    # loop_num = re.findall("[0-9][0-9]*", model_names.pop())[0]
+    new_saver = tf.train.import_meta_graph(MODEL_PATH + 'model_loop_{0}.ckpt.meta'.format(loop))
     new_saver.restore(save_path=tf.train.latest_checkpoint(MODEL_PATH), sess=sess)
 
     probs = sess.run(tf.nn.softmax(logits), feed_dict={x: test, keep_prob: 1.0})
