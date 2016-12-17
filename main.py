@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-from utilities import extract, batch_iter
+from utilities import extract, batch_iter, generate_training_set
 import sys
 import pandas as pd
 
@@ -75,8 +75,6 @@ def evaluate(test, metric, valid_set):
 
     valid_x, valid_y = zip(*valid_set)
 
-    # model_names = [i.name for i in os.scandir(MODEL_PATH) if i.is_file() and i.name.endswith('.meta')]
-    # loop_num = re.findall("[0-9][0-9]*", model_names.pop())[0]
     new_saver = tf.train.import_meta_graph(MODEL_PATH + 'model_ensemble_loop_{0}.ckpt.meta'.format(loop))
     new_saver.restore(save_path=MODEL_PATH + 'model_ensemble_loop_{0}.ckpt'.format(loop), sess=sess)
 
@@ -93,28 +91,6 @@ def submit(raw):
     out = df['Label']
     df.to_csv('probs.csv', encoding='utf-8', header=True, index=True)
     out.to_csv('submission.csv', encoding='utf-8', header=True, index=True)
-
-
-def generate_training_set(data, label, test_size=0.05):
-
-    index = len(data)
-    random_index = np.random.permutation(index)
-
-    train_size = int((1 - test_size) * index)
-
-    train_index = random_index[:train_size]
-    test_index = random_index[train_size:]
-
-    x_train = np.array(data.ix[train_index, :])
-    y_train = np.array(label.ix[train_index, :])
-
-    x_valid = np.array(data.ix[test_index, :])
-    y_valid = np.array(label.ix[test_index, :])
-
-    combined_train = np.array([(x_train[i], y_train[i]) for i in range(len(train_index))])
-    combined_valid = np.array([(x_valid[i], y_valid[i]) for i in range(len(test_index))])
-
-    return combined_train, combined_valid
 
 
 if __name__ == '__main__':
@@ -208,7 +184,7 @@ if __name__ == '__main__':
         ensemble_val_prob = np.mean(np.array([val_probs[i] for i in range(ENSEMBLE)]), axis=0)
         ensemble_val_accuracy = sum(ensemble_val_prob.argmax(axis=1) == np.array(valid_y).argmax(axis=1))/len(valid_y)
 
-        print('Ensemble Network ({0}), Validation Accuracy: {1:.4f}'.format(loop+1, ensemble_val_accuracy))
+        print('Ensemble Network of ({0}), Validation Accuracy: {1:.4f}'.format(loop+1, ensemble_val_accuracy))
 
         ensemble_prob = np.mean(np.array([probs[i] for i in range(ENSEMBLE)]), axis=0)
         submit(raw=ensemble_prob)
