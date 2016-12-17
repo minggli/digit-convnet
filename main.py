@@ -184,7 +184,7 @@ if __name__ == '__main__':
     if EVAL:
 
         _, valid_set = \
-            generate_training_set(data=train, label=label, test_size=0.05)
+            generate_training_set(data=train, label=label, test_size=0.95)
 
         _, valid_y = zip(*valid_set)
 
