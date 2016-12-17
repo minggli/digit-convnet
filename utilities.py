@@ -2,10 +2,14 @@ import pandas as pd
 import numpy as np
 
 
-def extract(data):
+def extract(data, target=None):
     data = pd.read_csv(data)
-    label = pd.get_dummies(data['label'])
-    train = data.drop(['label'], axis=1)
+    if target in data.columns:
+        label = pd.get_dummies(data[target])
+        train = data.drop([target], axis=1)
+    else:
+        label = None
+        train = None
     return train, label, data
 
 

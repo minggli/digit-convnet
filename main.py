@@ -17,7 +17,7 @@ __author__ = 'Ming Li'
 INPUT_PATH = 'input/'
 MODEL_PATH = 'models/'
 num_ensemble = 5
-train, label, data = extract(INPUT_PATH + 'train.csv')
+train, label, data = extract(INPUT_PATH + 'train.csv', target='label')
 input_shape = np.int32(np.sqrt((train.shape[1], train.shape[1])))
 m = train.shape[1]
 n = len(set(label.columns))
@@ -70,8 +70,6 @@ def _train(train_iterator, valid_set, optimiser, metric, loss, drop_out=.5):
 
 
 def evaluate(test, metric, valid_set):
-
-    # import re
 
     valid_x, valid_y = zip(*valid_set)
 
@@ -168,7 +166,7 @@ if __name__ == '__main__':
         val_accuracies = []
         val_probs = []
 
-        test = pd.read_csv(INPUT_PATH + 'test.csv')
+        _, _, test = extract(INPUT_PATH + 'test.csv')
         test.index += 1
         test.index.name = 'ImageId'
 
