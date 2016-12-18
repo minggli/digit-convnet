@@ -64,7 +64,7 @@ def _train(train_iterator, valid_set, optimiser, metric, loss, drop_out=.5):
 
         optimiser.run(feed_dict={x: x_batch, y_: y_batch, keep_prob: drop_out})
 
-        if i % 200 == 0:
+        if i % 1000 == 0:
             valid_accuracy, loss_score = sess.run([metric, loss], feed_dict={x: valid_x, y_: valid_y, keep_prob: 1.0})
             print("loop {4}, epoch {2}, step {0}, validation accuracy {1:.4f}, loss {3:.4f}".format(i, valid_accuracy, epoch, loss_score, loop))
 
