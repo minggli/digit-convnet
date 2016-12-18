@@ -16,7 +16,7 @@ __author__ = 'Ming Li'
 
 INPUT_PATH = 'input/'
 MODEL_PATH = 'models/'
-num_ensemble = 7
+num_ensemble = 5
 train, label, data = extract(INPUT_PATH + 'train.csv', target='label')
 input_shape = np.int32(np.sqrt((train.shape[1], train.shape[1])))
 m = train.shape[1]
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     # train
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits, y_)
     loss = tf.reduce_mean(cross_entropy)
-    train_step = tf.train.AdamOptimizer(learning_rate=8e-5, beta1=.9, beta2=.999).minimize(loss)
+    train_step = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=.9, beta2=.999).minimize(loss)
 
     # eval
     correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(y_, 1))
