@@ -5,7 +5,7 @@ from sklearn import metrics, linear_model, model_selection, preprocessing
 import sys
 import pandas as pd
 from warnings import filterwarnings
-filterwarnings(action='ignore')
+filterwarnings(action='ignore', category=UserWarning)
 import os
 
 # coding: utf-8
