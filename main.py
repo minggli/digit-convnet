@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from utilities import extract, batch_iter, generate_training_set
+from sklearn import metrics, linear_model, model_selection, preprocessing
 import sys
 import pandas as pd
 
@@ -25,7 +26,7 @@ n = len(set(label.columns))
 print(sys.argv[1:])
 
 EVAL = True if 'EVAL' in map(str.upper, sys.argv[1:]) else False
-
+LOG = True if 'LOG' in map(str.upper, sys.argv[1:]) else False
 ENSEMBLE = num_ensemble if 'ENSEMBLE' in map(str.upper, sys.argv[1:]) else 1
 
 # templates
@@ -92,6 +93,13 @@ def submit(raw):
 
 
 if __name__ == '__main__':
+
+    if LOG:
+
+        regressors = np.column_stack(
+            (np.ones(shape=train.shape[0]), train.apply(preprocessing.scale, axis=0, with_mean=True, with_std=True))
+        )
+        regressand = np.array(label)
 
     sess = tf.Session()
 
@@ -185,6 +193,9 @@ if __name__ == '__main__':
         print('Ensemble Network of ({0}), Validation Accuracy: {1:.4f}'.format(loop+1, ensemble_val_accuracy))
 
         ensemble_prob = np.mean(np.array([probs[i] for i in range(ENSEMBLE)]), axis=0)
+
+        # with logistic regression
+
         submit(raw=ensemble_prob)
 
     else:
