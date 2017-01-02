@@ -104,10 +104,11 @@ if __name__ == '__main__':
 
         lr = linear_model.LogisticRegression(fit_intercept=False)
         lr.fit(regressors, regressand)
+        print(lr.coef_)
 
-        KF_generator = model_selection.StratifiedKFold(n_splits=5, shuffle=False)
+        KF_generator = model_selection.KFold(n_splits=5, shuffle=False)
         avg_scores = model_selection.cross_val_score(
-            lr, regressors, regressand, scoring=metrics.accuracy_score, cv=KF_generator)
+            lr, regressors, regressand, scoring=metrics.accuracy_score(), cv=KF_generator)
 
         print('Using given features by Kaggle, Logistic Regression model accuracy is: ', end='')
         print('{0:.2f}%'.format(100 * np.mean(avg_scores)), flush=True, end='\n')
