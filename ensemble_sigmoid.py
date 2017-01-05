@@ -4,11 +4,9 @@ from sklearn import metrics, linear_model, model_selection, preprocessing, ensem
 import sys
 import pandas as pd
 
-
 INPUT_PATH = 'input/'
 MODEL_PATH = 'models/'
 train, label, data = extract(INPUT_PATH + 'train.csv', target='label')
-
 
 regressors = np.column_stack(
     (np.ones(shape=train.shape[0]), train.apply(preprocessing.scale, axis=0, with_mean=True, with_std=True))
