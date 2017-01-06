@@ -1,6 +1,6 @@
 import numpy as np
 from utilities import extract, batch_iter, generate_training_set
-from sklearn import metrics, linear_model, model_selection, preprocessing, ensemble, svm, naive_bayes
+from sklearn import metrics, linear_model, model_selection, preprocessing, ensemble, svm, naive_bayes, neighbors
 import sys
 import pandas as pd
 
@@ -28,7 +28,7 @@ KF_generator = model_selection.StratifiedKFold(n_splits=5, shuffle=False)
 
 regressors = train.apply(preprocessing.scale, axis=0, with_mean=True, with_std=True)
 
-forest = ensemble.RandomForestClassifier(n_estimators=100, max_depth=1000, max_leaf_nodes=1000)
+forest = ensemble.RandomForestClassifier(n_estimators=300, max_depth=1000, max_leaf_nodes=1000)
 
 avg_scores = model_selection.cross_val_score(
     forest, regressors, regressand, scoring='accuracy', cv=KF_generator)
@@ -47,7 +47,6 @@ avg_scores = model_selection.cross_val_score(
 print('Using given features by Kaggle, Naive Bayes model accuracy is: ', end='')
 print('{1} averaging in {0:.2f}%'.format(100 * np.mean(avg_scores), avg_scores), flush=True, end='\n')
 
-regressors = train.apply(preprocessing.scale, axis=0, with_mean=True, with_std=True)
 
 clf = svm.SVC()
 avg_scores = model_selection.cross_val_score(
@@ -56,3 +55,10 @@ avg_scores = model_selection.cross_val_score(
 print('Using given features by Kaggle, SVM model accuracy is: ', end='')
 print('{1} averaging in {0:.2f}%'.format(100 * np.mean(avg_scores), avg_scores), flush=True, end='\n')
 
+neigh = neighbors.KNeighborsClassifier(n_neighbors=3)
+
+avg_scores = model_selection.cross_val_score(
+    neigh, regressors, regressand, scoring='accuracy', cv=KF_generator)
+
+print('Using given features by Kaggle, K-nearest Neighbour model accuracy is: ', end='')
+print('{1} averaging in {0:.2f}%'.format(100 * np.mean(avg_scores), avg_scores), flush=True, end='\n')
