@@ -90,7 +90,7 @@ def submit(raw):
     df['Label'] = df.idxmax(axis=1)
     out = df['Label']
     df.to_csv('probs.csv', encoding='utf-8', header=True, index=True)
-    out.to_csv('submission.csv', encoding='utf-8', header=True, index=True)
+    out.to_csv('0.02492.csv', encoding='utf-8', header=True, index=True)
 
 
 if __name__ == '__main__':
