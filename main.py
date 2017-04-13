@@ -212,4 +212,3 @@ if __name__ == '__main__':
 
             save_path = saver.save(sess, MODEL_PATH + "model_ensemble_loop_{0}.ckpt".format(loop))
             print("Model saved in file: {0}".format(save_path))
-
